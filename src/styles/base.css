@@ -1,0 +1,182 @@
+@import './variables.css';
+
+/*
+  Suppress the browser's automatic full-page "root" transition when we're
+  doing a typed transition. We animate the named outlet element (vtr-page)
+  instead, which keeps the nav bar static and only slides the page content.
+*/
+:root:active-view-transition-type(slide-forward),
+:root:active-view-transition-type(slide-back),
+:root:active-view-transition-type(fade),
+:root:active-view-transition-type(zoom),
+:root:active-view-transition-type(slide-up),
+:root:active-view-transition-type(slide-down),
+:root:active-view-transition-type(flip),
+:root:active-view-transition-type(blur),
+:root:active-view-transition-type(reveal),
+:root:active-view-transition-type(rotate) {
+  &::view-transition-old(root),
+  &::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* ─── slide ────────────────────────────────────────────────────────────────── */
+
+:root:active-view-transition-type(slide-forward) {
+  &::view-transition-old(vtr-page) {
+    animation: vtr-slide-out-left var(--vtr-duration) var(--vtr-easing) both;
+  }
+  &::view-transition-new(vtr-page) {
+    animation: vtr-slide-in-right var(--vtr-duration) var(--vtr-easing) both;
+  }
+}
+
+:root:active-view-transition-type(slide-back) {
+  &::view-transition-old(vtr-page) {
+    animation: vtr-slide-out-right var(--vtr-duration) var(--vtr-easing) both;
+  }
+  &::view-transition-new(vtr-page) {
+    animation: vtr-slide-in-left var(--vtr-duration) var(--vtr-easing) both;
+  }
+}
+
+@keyframes vtr-slide-out-left  { to   { translate: -100% 0; } }
+@keyframes vtr-slide-in-right  { from { translate:  100% 0; } }
+@keyframes vtr-slide-out-right { to   { translate:  100% 0; } }
+@keyframes vtr-slide-in-left   { from { translate: -100% 0; } }
+
+/* ─── fade ─────────────────────────────────────────────────────────────────── */
+
+:root:active-view-transition-type(fade) {
+  &::view-transition-old(vtr-page) {
+    animation: vtr-fade-out var(--vtr-duration) var(--vtr-easing) both;
+  }
+  &::view-transition-new(vtr-page) {
+    animation: vtr-fade-in var(--vtr-duration) var(--vtr-easing) both;
+  }
+}
+
+@keyframes vtr-fade-out { to   { opacity: 0; } }
+@keyframes vtr-fade-in  { from { opacity: 0; } }
+
+/* ─── zoom ─────────────────────────────────────────────────────────────────── */
+/* Old page scales up and fades out; new page scales in from slightly smaller. */
+
+:root:active-view-transition-type(zoom) {
+  &::view-transition-old(vtr-page) {
+    animation: vtr-zoom-out var(--vtr-duration) var(--vtr-easing) both;
+  }
+  &::view-transition-new(vtr-page) {
+    animation: vtr-zoom-in var(--vtr-duration) var(--vtr-easing) both;
+  }
+}
+
+@keyframes vtr-zoom-out { to   { opacity: 0; scale: 1.1; } }
+@keyframes vtr-zoom-in  { from { opacity: 0; scale: 0.9; } }
+
+/* ─── slide-up ─────────────────────────────────────────────────────────────── */
+/* Old page floats up and fades; new page slides in from the bottom.           */
+/* Use for "going deeper" hierarchical navigation (e.g. list → detail).        */
+
+:root:active-view-transition-type(slide-up) {
+  &::view-transition-old(vtr-page) {
+    animation: vtr-slide-up-out var(--vtr-duration) var(--vtr-easing) both;
+  }
+  &::view-transition-new(vtr-page) {
+    animation: vtr-slide-up-in var(--vtr-duration) var(--vtr-easing) both;
+  }
+}
+
+@keyframes vtr-slide-up-out { to   { translate: 0 -25%; opacity: 0; } }
+@keyframes vtr-slide-up-in  { from { translate: 0  100%; } }
+
+/* ─── slide-down ───────────────────────────────────────────────────────────── */
+/* Old page sinks and fades; new page slides in from the top.                  */
+/* Use for "going back up" (e.g. detail → list) or dismissing overlays.        */
+
+:root:active-view-transition-type(slide-down) {
+  &::view-transition-old(vtr-page) {
+    animation: vtr-slide-down-out var(--vtr-duration) var(--vtr-easing) both;
+  }
+  &::view-transition-new(vtr-page) {
+    animation: vtr-slide-down-in var(--vtr-duration) var(--vtr-easing) both;
+  }
+}
+
+@keyframes vtr-slide-down-out { to   { translate: 0 25%;  opacity: 0; } }
+@keyframes vtr-slide-down-in  { from { translate: 0 -100%; } }
+
+/* ─── flip ─────────────────────────────────────────────────────────────────── */
+/* Sequential 3D Y-axis flip: old flips out in the first half of the duration, */
+/* new flips in during the second half. Looks like turning a card over.         */
+
+:root:active-view-transition-type(flip) {
+  &::view-transition-old(vtr-page) {
+    animation: vtr-flip-out calc(var(--vtr-duration) / 2) ease-in both;
+  }
+  &::view-transition-new(vtr-page) {
+    animation: vtr-flip-in calc(var(--vtr-duration) / 2) ease-out both;
+    animation-delay: calc(var(--vtr-duration) / 2);
+  }
+}
+
+@keyframes vtr-flip-out { to   { transform: perspective(1200px) rotateY(90deg); } }
+@keyframes vtr-flip-in  { from { transform: perspective(1200px) rotateY(-90deg); } }
+
+/* ─── blur ─────────────────────────────────────────────────────────────────── */
+/* Old page blurs out and scales slightly up; new page blurs in from smaller.  */
+
+:root:active-view-transition-type(blur) {
+  &::view-transition-old(vtr-page) {
+    animation: vtr-blur-out var(--vtr-duration) var(--vtr-easing) both;
+  }
+  &::view-transition-new(vtr-page) {
+    animation: vtr-blur-in var(--vtr-duration) var(--vtr-easing) both;
+  }
+}
+
+@keyframes vtr-blur-out { to   { opacity: 0; filter: blur(10px); scale: 1.02; } }
+@keyframes vtr-blur-in  { from { opacity: 0; filter: blur(10px); scale: 0.98; } }
+
+/* ─── reveal ───────────────────────────────────────────────────────────────── */
+/* Old page dims and shrinks; new page sweeps in from the right via clip-path. */
+
+:root:active-view-transition-type(reveal) {
+  &::view-transition-old(vtr-page) {
+    animation: vtr-reveal-out var(--vtr-duration) var(--vtr-easing) both;
+  }
+  &::view-transition-new(vtr-page) {
+    animation: vtr-reveal-in var(--vtr-duration) var(--vtr-easing) both;
+  }
+}
+
+@keyframes vtr-reveal-out { to   { opacity: 0.4; scale: 0.97; } }
+@keyframes vtr-reveal-in  {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0%   0 0); }
+}
+
+/* ─── rotate ───────────────────────────────────────────────────────────────── */
+/* Old page rotates clockwise and fades; new page rotates in counter-clockwise. */
+
+:root:active-view-transition-type(rotate) {
+  &::view-transition-old(vtr-page) {
+    animation: vtr-rotate-out var(--vtr-duration) var(--vtr-easing) both;
+  }
+  &::view-transition-new(vtr-page) {
+    animation: vtr-rotate-in var(--vtr-duration) var(--vtr-easing) both;
+  }
+}
+
+@keyframes vtr-rotate-out { to   { opacity: 0; rotate:  5deg; scale: 1.03; } }
+@keyframes vtr-rotate-in  { from { opacity: 0; rotate: -5deg; scale: 0.97; } }
+
+/* ─── reduced-motion ───────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

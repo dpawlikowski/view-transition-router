@@ -1,0 +1,28 @@
+{
+  "name": "view-transition-router-poc",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  "dependencies": {
+    "react": "^0.0.0-experimental-900ae094-20260605",
+    "react-dom": "^0.0.0-experimental-900ae094-20260605",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.9.3",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "playwright": "^1.60.0",
+    "typescript": "^5.4.0",
+    "vite": "^5.4.0"
+  }
+}

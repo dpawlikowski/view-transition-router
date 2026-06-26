@@ -1,0 +1,71 @@
+{
+  "name": "view-transition-router",
+  "version": "0.1.0",
+  "description": "Direction-aware React View Transitions, router-agnostic",
+  "author": "Dominik Pawlikowski <dpawlikowski0@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "view-transitions",
+    "router",
+    "animation",
+    "navigation",
+    "startViewTransition",
+    "addTransitionType"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dpawlikowski/view-transition-router.git"
+  },
+  "homepage": "https://github.com/dpawlikowski/view-transition-router#readme",
+  "bugs": {
+    "url": "https://github.com/dpawlikowski/view-transition-router/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles": "./dist/styles/base.css",
+    "./styles/variables": "./dist/styles/variables.css"
+  },
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "peerDependencies": {
+    "react": ">=19.0.0-canary || >=19.0.0",
+    "react-dom": ">=19.0.0-canary || >=19.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "jsdom": "^29.1.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.8"
+  }
+}
