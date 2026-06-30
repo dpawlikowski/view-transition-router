@@ -7,6 +7,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
+  base: process.env.BASE_URL ?? '/',
   resolve: {
     alias: {
       'view-transition-router': resolve(__dirname, '../src/index.ts'),
