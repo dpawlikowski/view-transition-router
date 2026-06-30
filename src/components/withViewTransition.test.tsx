@@ -47,4 +47,25 @@ describe('withViewTransition', () => {
     const Wrapped = withViewTransition(Anon);
     expect(Wrapped.displayName).toBe('WithViewTransition(Anon)');
   });
+
+  it('falls back to "Component" in displayName when component has no name at all', () => {
+    // Simulate a truly unnamed component (e.g. minified output or Object.create).
+    const Nameless = ({ label }: CardProps) => <span>{label}</span>;
+    Object.defineProperty(Nameless, 'name', { value: '', configurable: true });
+    Object.defineProperty(Nameless, 'displayName', { value: undefined, configurable: true });
+
+    const Wrapped = withViewTransition(Nameless);
+    expect(Wrapped.displayName).toBe('WithViewTransition(Component)');
+  });
+
+  it('uses the FALLBACK_TRANSITION_NAME "view" as transition name when component has no name', () => {
+    // React.ViewTransition is unavailable in stable React, so just verify no throw.
+    const Nameless = ({ label }: CardProps) => <span data-testid="nl">{label}</span>;
+    Object.defineProperty(Nameless, 'name', { value: '', configurable: true });
+    Object.defineProperty(Nameless, 'displayName', { value: undefined, configurable: true });
+
+    const Wrapped = withViewTransition(Nameless);
+    expect(() => render(<Wrapped id={1} label="x" />)).not.toThrow();
+    expect(screen.getByTestId('nl')).toBeInTheDocument();
+  });
 });

@@ -32,7 +32,7 @@ export const withViewTransition = <P extends object>(
     const transitionName =
       typeof name === 'function'
         ? name(props)
-        : (name ?? Component.displayName ?? Component.name ?? FALLBACK_TRANSITION_NAME);
+        : (name || Component.displayName || Component.name || FALLBACK_TRANSITION_NAME);
 
     if (!ReactViewTransition) {
       return <Component {...props} />;
@@ -45,6 +45,6 @@ export const withViewTransition = <P extends object>(
     );
   };
 
-  Wrapped.displayName = `WithViewTransition(${Component.displayName ?? Component.name ?? 'Component'})`;
+  Wrapped.displayName = `WithViewTransition(${Component.displayName || Component.name || 'Component'})`;
   return Wrapped;
 };

@@ -40,6 +40,12 @@ describe('useTransitionNavigate — string path', () => {
     expect(navigate).toHaveBeenCalledWith('/home', { replace: true, state: undefined });
   });
 
+  it('forwards state to the navigate function', () => {
+    const { result } = renderHook(() => useTransitionNavigate(), { wrapper: makeWrapper(navigate) });
+    act(() => result.current('/profile', { state: { from: '/home' } }));
+    expect(navigate).toHaveBeenCalledWith('/profile', { replace: false, state: { from: '/home' } });
+  });
+
   it('calls addTransitionType with the resolved token when VT is supported', () => {
     vi.mocked(transitionUtils.supportsViewTransitions).mockReturnValue(true);
     const { result } = renderHook(() => useTransitionNavigate(), { wrapper: makeWrapper(navigate) });

@@ -19,14 +19,17 @@ Problems with the class approach:
 
 The tradeoff: requires react@canary or Next.js 15.2+. Older setups get instant navigation with no directional animation. That degradation is correct behavior, not a bug.
 
-## No opinionated keyframes beyond three built-ins
+## Built-in transition types — minimal keyframes, overridable
 
-Shipping polished default animations would mean:
-1. The library encodes opinions about easing curves, slide distance, and timing that differ across every app's design system.
-2. Users override them immediately, making the shipped CSS dead weight.
-3. Every pixel of animation CSS adds to bundle size with no persistent value.
+The library ships nine built-in transition types: `slide` (direction-aware), `fade`, `zoom`, `slide-up`, `slide-down`, `flip`, `blur`, `reveal`, `rotate`, and the structure-only `morph`. A tenth type, `none`, skips animation entirely.
 
-The three built-ins (slide, fade, morph) define *structure* — which elements animate, how they're paired — but the keyframes in `base.css` are minimal and intentionally overridable. CSS custom properties (`--vtr-duration`, `--vtr-easing`) cover the 80% case where teams just want to tune timing. Teams that want spring curves or directional opacity fades write ten lines of CSS and own it.
+This set was chosen to cover the most common SPA navigation patterns out of the box so teams don't write boilerplate for a fade or a slide. The guiding constraints:
+
+1. **Keyframes are minimal by design.** `slide` translates 100% and stops. `fade` crosses opacity. There are no spring curves, no choreographed staggers, no opinionated easing beyond the `ease-in-out` default. Every keyframe is easily overridden with ten lines of CSS.
+2. **Timing is a CSS variable, not a hard-coded value.** `--vtr-duration` and `--vtr-easing` are overridable at root scope or per-navigation via the `duration`/`easing` props. The library never hard-codes `300ms` in a keyframe — only in the CSS variable default.
+3. **`morph` ships no keyframes.** It's a structural type: the consumer sets matching `view-transition-name` values on corresponding elements across routes and the browser morphs them. There is nothing for this library to animate.
+
+Teams that want spring curves, directional opacity fades, or gesture-matched easing write their own `@keyframes` and target the existing `::view-transition-type()` selectors. The built-ins are a starting point, not a ceiling.
 
 ## HOC over mandatory JSX wrapping for named elements
 
