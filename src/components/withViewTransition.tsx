@@ -1,12 +1,34 @@
 'use client';
 
-import { type ComponentType, type FC, type ReactNode } from 'react';
+import { type ComponentType, type FC, type ReactNode, useEffect } from 'react';
 import React from 'react';
 
 const FALLBACK_TRANSITION_NAME = 'view';
 
 type VTProps = { name?: string; children?: ReactNode };
 const ReactViewTransition = (React as unknown as { ViewTransition?: ComponentType<VTProps> }).ViewTransition;
+
+const activeNames = process.env.NODE_ENV !== 'production' ? new Map<string, number>() : null;
+
+const useDuplicateNameWarning = (name: string) => {
+  useEffect(() => {
+    if (!activeNames) return;
+    const count = (activeNames.get(name) ?? 0) + 1;
+    activeNames.set(name, count);
+    if (count > 1) {
+      console.warn(
+        `[view-transition-router] Multiple mounted components share the view-transition-name "${name}". ` +
+        'The browser silently skips the transition when a name is not unique per-frame. Pass a ' +
+        'stable, key-derived name function to withViewTransition when rendering a list.',
+      );
+    }
+    return () => {
+      const next = (activeNames.get(name) ?? 1) - 1;
+      if (next <= 0) activeNames.delete(name);
+      else activeNames.set(name, next);
+    };
+  }, [name]);
+};
 
 /**
  * Wraps a component in `<ViewTransition name={name}>` for shared-element transitions.
@@ -33,6 +55,8 @@ export const withViewTransition = <P extends object>(
       typeof name === 'function'
         ? name(props)
         : (name || Component.displayName || Component.name || FALLBACK_TRANSITION_NAME);
+
+    useDuplicateNameWarning(transitionName);
 
     if (!ReactViewTransition) {
       return <Component {...props} />;

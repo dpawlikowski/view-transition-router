@@ -68,4 +68,30 @@ describe('withViewTransition', () => {
     expect(() => render(<Wrapped id={1} label="x" />)).not.toThrow();
     expect(screen.getByTestId('nl')).toBeInTheDocument();
   });
+
+  it('warns in dev when two mounted instances share a static view-transition-name', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const Wrapped = withViewTransition(Card, 'duplicate');
+    render(
+      <>
+        <Wrapped id={1} label="A" />
+        <Wrapped id={2} label="B" />
+      </>,
+    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('share the view-transition-name "duplicate"'));
+    warnSpy.mockRestore();
+  });
+
+  it('does not warn when a dynamic name function produces unique names per instance', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const Wrapped = withViewTransition(Card, (props: CardProps) => `card-${props.id}`);
+    render(
+      <>
+        <Wrapped id={1} label="A" />
+        <Wrapped id={2} label="B" />
+      </>,
+    );
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
 });

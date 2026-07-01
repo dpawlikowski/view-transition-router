@@ -4,3 +4,9 @@ dist/
 *.tsbuildinfo
 .claude/
 coverage/
+src/**/*.js
+src/**/*.js.map
+!src/**/*.test.js
+poc/dist/
+poc/playwright-report/
+poc/test-results/

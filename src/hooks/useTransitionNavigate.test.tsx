@@ -172,4 +172,12 @@ describe('useTransitionNavigate — location fallbacks (no navigate in config)',
     act(() => result.current('/page', { replace: true }));
     expect(replaceFn).toHaveBeenCalledWith('/page');
   });
+
+  it('warns in dev when navigate is not configured', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { result } = renderHook(() => useTransitionNavigate(), { wrapper: noNavigateWrapper });
+    act(() => result.current('/page'));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('has no `navigate` configured'));
+    warnSpy.mockRestore();
+  });
 });

@@ -2,7 +2,7 @@
 
 import { useContext, type MouseEvent } from 'react';
 import { TransitionContext } from '../context';
-import { addTransitionType, applyTransitionVars, supportsViewTransitions, toTransitionToken } from '../utils/transition';
+import { addTransitionType, applyTransitionVars, prefersReducedMotion, supportsViewTransitions, toTransitionToken } from '../utils/transition';
 import { DEFAULT_TRANSITION } from '../constants';
 import type { TransitionLinkProps, Direction, NavigateOptions } from '../types';
 
@@ -31,10 +31,19 @@ export const TransitionLink = ({
     const opts: NavigateOptions = { replace: shouldReplace };
     if (navigate) {
       navigate(to, opts);
-    } else if (shouldReplace) {
-      window.location.replace(to);
     } else {
-      window.location.assign(to);
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          '[view-transition-router] TransitionLink has no `navigate` (prop or TransitionProvider config) ' +
+          'and no `renderLink`; falling back to window.location, which performs a full page reload. ' +
+          'Pass `navigate` or `renderLink` to integrate with your router.',
+        );
+      }
+      if (shouldReplace) {
+        window.location.replace(to);
+      } else {
+        window.location.assign(to);
+      }
     }
     // Advance the history idx ref after pushState/replaceState so the next
     // popstate delta is computed from the correct baseline.
@@ -51,7 +60,7 @@ export const TransitionLink = ({
 
     e.preventDefault();
 
-    if (!supportsViewTransitions() || activeTransition === 'none') {
+    if (!supportsViewTransitions() || activeTransition === 'none' || prefersReducedMotion()) {
       doNavigate();
       return;
     }

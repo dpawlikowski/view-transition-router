@@ -7,6 +7,23 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- JS-level `prefers-reduced-motion` check in `TransitionLink` and `useTransitionNavigate` — `startViewTransition` is now skipped entirely (not just visually null-animated via CSS) when the user has the OS-level preference set.
+- Dev-mode console warnings (stripped in production builds) for two previously-silent footguns: navigating with no `navigate`/`renderLink` configured (falls back to a full-page `window.location` reload), and mounting multiple `withViewTransition`-wrapped components with the same `view-transition-name`.
+
+### Fixed
+
+- Removed stale compiled `.js` files that were accidentally committed alongside their `.ts`/`.tsx` sources in `src/`, and `poc/` Playwright build artifacts (`playwright-report/`, `test-results/`) that were tracked in git. All are now gitignored.
+
+### Internal
+
+- Added a CI workflow (`typecheck` + `test:coverage` + `build`) that previously didn't exist alongside the demo-deploy workflow.
+
+---
+
 ## [0.1.0] — 2026-06-30
 
 Initial public release.

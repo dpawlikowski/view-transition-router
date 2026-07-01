@@ -270,3 +270,23 @@ describe('TransitionLink — renderLink from context config', () => {
     expect(screen.getByTestId('prop-link')).toBeInTheDocument();
   });
 });
+
+describe('TransitionLink — no navigate configured', () => {
+  it('warns in dev and falls back to window.location when navigate is missing', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const assignSpy = vi.spyOn(window.location, 'assign').mockImplementation(() => {});
+
+    render(
+      <TransitionProvider>
+        <TransitionLink to="/about">Go</TransitionLink>
+      </TransitionProvider>,
+    );
+    await userEvent.click(screen.getByRole('link'));
+
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('has no `navigate`'));
+    expect(assignSpy).toHaveBeenCalledWith('/about');
+
+    warnSpy.mockRestore();
+    assignSpy.mockRestore();
+  });
+});

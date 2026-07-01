@@ -451,6 +451,16 @@ type Direction = 'forward' | 'backward' | 'replace';
 
 Directional animations (`slide-forward` / `slide-back`) are a progressive enhancement. Browsers that don't support `addTransitionType` still navigate — they just crossfade.
 
+### `prefers-reduced-motion`
+
+Handled at two levels: `styles/base.css` nulls all `::view-transition-old/new` animation via a media query, and `TransitionLink`/`useTransitionNavigate` additionally skip `startViewTransition` entirely at the JS level when the user has the OS-level preference set — navigation still happens, just without ever entering a transition.
+
+### Dev-mode warnings
+
+In non-production builds, the library warns to the console (stripped in production) when:
+- `TransitionLink` / `useTransitionNavigate` have no `navigate` configured and silently fall back to `window.location` (a full page reload).
+- Two mounted `withViewTransition`-wrapped components share the same `view-transition-name`, which causes the browser to silently skip the transition.
+
 ---
 
 ## Architecture

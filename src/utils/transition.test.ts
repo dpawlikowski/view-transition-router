@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
-import { supportsViewTransitions, toTransitionToken, applyTransitionVars } from './transition';
+import { supportsViewTransitions, toTransitionToken, applyTransitionVars, prefersReducedMotion } from './transition';
 
 describe('supportsViewTransitions', () => {
   afterEach(() => {
@@ -20,6 +20,27 @@ describe('supportsViewTransitions', () => {
       configurable: true,
     });
     expect(supportsViewTransitions()).toBe(true);
+  });
+});
+
+describe('prefersReducedMotion', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('returns false when matchMedia reports no reduced-motion preference', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({ media: query, matches: false }));
+    expect(prefersReducedMotion()).toBe(false);
+  });
+
+  it('returns true when matchMedia reports a reduced-motion preference', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({ media: query, matches: true }));
+    expect(prefersReducedMotion()).toBe(true);
+  });
+
+  it('returns false when matchMedia is unavailable', () => {
+    vi.stubGlobal('matchMedia', undefined);
+    expect(prefersReducedMotion()).toBe(false);
   });
 });
 

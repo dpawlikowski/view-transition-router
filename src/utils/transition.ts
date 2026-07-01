@@ -9,6 +9,17 @@ export const addTransitionType = (
 export const supportsViewTransitions = (): boolean =>
   typeof document !== 'undefined' && 'startViewTransition' in document;
 
+/**
+ * JS-level reduced-motion check, complementing the CSS-only
+ * `prefers-reduced-motion` media query in `styles/base.css`. Consumers who
+ * skip `startViewTransition` entirely (rather than letting it run with no
+ * visible animation) can gate on this before calling `doNavigate`.
+ */
+export const prefersReducedMotion = (): boolean =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 /** Maps a user-facing {@link TransitionType} + direction to the CSS token passed to `addTransitionType`. */
 export const toTransitionToken = (transition: TransitionType, direction: Direction): TransitionToken => {
   if (transition === 'slide') {
