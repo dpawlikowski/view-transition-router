@@ -2,7 +2,14 @@
 
 import { useContext, useCallback } from 'react';
 import { TransitionContext } from '../context';
-import { addTransitionType, applyTransitionVars, prefersReducedMotion, supportsViewTransitions, toTransitionToken } from '../utils/transition';
+import {
+  addTransitionType,
+  applyTransitionVars,
+  prefersReducedMotion,
+  resolveTransitionDirection,
+  supportsViewTransitions,
+  toTransitionToken,
+} from '../utils/transition';
 import { DEFAULT_TRANSITION } from '../constants';
 import type { TransitionNavigateOptions, Direction, NavigateOptions, NavigationPath } from '../types';
 
@@ -52,7 +59,7 @@ export const useTransitionNavigate = () => {
 
       const direction: Direction =
         typeof to === 'number'
-          ? to === 0 ? 'replace' : to < 0 ? 'backward' : 'forward'
+          ? resolveTransitionDirection(to)
           : shouldReplace ? 'replace' : 'forward';
 
       const token = toTransitionToken(activeTransition, direction);

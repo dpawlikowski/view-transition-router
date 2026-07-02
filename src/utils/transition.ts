@@ -20,6 +20,18 @@ export const prefersReducedMotion = (): boolean =>
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/**
+ * Resolves the navigation {@link Direction} for a `useTransitionNavigate` call
+ * targeting a numeric history delta (as passed to `history.go`).
+ *
+ * `0` is treated as `'replace'` (no directional slide), negative deltas are
+ * `'backward'`, and positive deltas are `'forward'`.
+ */
+export const resolveTransitionDirection = (to: number): Direction => {
+  if (to === 0) return 'replace';
+  return to < 0 ? 'backward' : 'forward';
+};
+
 /** Maps a user-facing {@link TransitionType} + direction to the CSS token passed to `addTransitionType`. */
 export const toTransitionToken = (transition: TransitionType, direction: Direction): TransitionToken => {
   if (transition === 'slide') {
