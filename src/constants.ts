@@ -12,3 +12,10 @@ export const DEFAULT_TRANSITION = 'slide' satisfies TransitionType;
  * also update your CSS rules to match.
  */
 export const DEFAULT_OUTLET_NAME = 'vtr-page';
+
+/**
+ * Fallback view-transition duration (ms) used when no per-navigation or
+ * provider override is set. Mirrors `--vtr-duration` in `styles/variables.css`;
+ * keep the two in sync.
+ */
+export const DEFAULT_TRANSITION_DURATION_MS = 300;

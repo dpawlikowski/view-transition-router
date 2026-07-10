@@ -1,5 +1,12 @@
 import React from 'react';
 import type { Direction, TransitionType, TransitionToken } from '../types';
+import { DEFAULT_TRANSITION_DURATION_MS } from '../constants';
+
+/**
+ * Extra delay (ms) added before clearing the inline `--vtr-*` overrides, so the
+ * cleanup timer never races the end of a running animation.
+ */
+const VAR_CLEANUP_BUFFER_MS = 50;
 
 /** Duck-typed at module load — undefined on React < 19 experimental. */
 export const addTransitionType = (
@@ -61,5 +68,5 @@ export const applyTransitionVars = (duration?: number, easing?: string): void =>
   setTimeout(() => {
     if (duration !== undefined) root.style.removeProperty('--vtr-duration');
     if (easing !== undefined) root.style.removeProperty('--vtr-easing');
-  }, (duration ?? 300) + 50);
+  }, (duration ?? DEFAULT_TRANSITION_DURATION_MS) + VAR_CLEANUP_BUFFER_MS);
 };
