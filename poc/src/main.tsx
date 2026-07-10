@@ -6,9 +6,11 @@ import { Home } from './pages/Home';
 import { About } from './pages/About';
 import './styles.css';
 
-// createBrowserRouter + RouterProvider wraps every navigation (including popstate)
-// in React.startTransition, which lets <ViewTransition> fire for back/forward buttons.
-// BrowserRouter uses synchronous dispatch and doesn't trigger ViewTransition on popstate.
+// The v7_startTransition future flag makes RouterProvider wrap every navigation
+// — including popstate (browser back/forward) — in React.startTransition, which
+// is what lets <ViewTransition> fire for the back/forward buttons. Without it,
+// react-router@6 dispatches route updates synchronously, so only link clicks
+// (which TransitionLink already wraps in startTransition) animate.
 const router = createHashRouter([
   {
     path: '/',
@@ -22,6 +24,6 @@ const router = createHashRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <RouterProvider router={router} future={{ v7_startTransition: true }} />
   </StrictMode>,
 );

@@ -7,6 +7,10 @@
     "jsx": "react-jsx",
     "strict": true,
     "skipLibCheck": true,
+    // Vite bundles the .tsx sources directly; tsc is type-check only. Without
+    // this it emitted .js next to every .tsx in src/, which Vite could then
+    // resolve ahead of the .tsx (stale-build footgun).
+    "noEmit": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
