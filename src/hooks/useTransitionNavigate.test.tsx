@@ -91,12 +91,12 @@ describe('useTransitionNavigate — numeric delta', () => {
     expect(transitionUtils.addTransitionType).toHaveBeenCalledWith('slide-forward');
   });
 
-  it('uses replace direction for delta 0', () => {
+  it('treats delta 0 as a no-op (history.go(0) would reload the whole page)', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const { result } = renderHook(() => useTransitionNavigate(), { wrapper: makeWrapper() });
     act(() => result.current(0, { transition: 'fade' }));
-    expect(historyGo).toHaveBeenCalledWith(0);
-    // fade is direction-agnostic, so token is just 'fade' regardless
-    expect(transitionUtils.addTransitionType).toHaveBeenCalledWith('fade');
+    expect(historyGo).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 });
 

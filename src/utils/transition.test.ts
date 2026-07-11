@@ -110,4 +110,23 @@ describe('applyTransitionVars', () => {
     vi.advanceTimersByTime(2);
     expect(document.documentElement.style.getPropertyValue('--vtr-easing')).toBe('');
   });
+
+  it('does not let an earlier navigation\'s cleanup strip a newer, longer transition\'s overrides', () => {
+    // Short navigation first (cleanup scheduled for t=350), then a longer one at
+    // t=100 (cleanup at t=1050). The first timer must be cancelled, or it would
+    // wipe the second navigation's vars at t=350, mid-animation.
+    applyTransitionVars(300, 'ease-in');
+    vi.advanceTimersByTime(100);
+    applyTransitionVars(900, 'linear');
+
+    // Past the first navigation's original cleanup time (t=350) — vars must survive.
+    vi.advanceTimersByTime(300); // t=400
+    expect(document.documentElement.style.getPropertyValue('--vtr-duration')).toBe('900ms');
+    expect(document.documentElement.style.getPropertyValue('--vtr-easing')).toBe('linear');
+
+    // The second navigation's own cleanup (t=100 + 900 + 50 = 1050) then clears them.
+    vi.advanceTimersByTime(651); // t=1051
+    expect(document.documentElement.style.getPropertyValue('--vtr-duration')).toBe('');
+    expect(document.documentElement.style.getPropertyValue('--vtr-easing')).toBe('');
+  });
 });

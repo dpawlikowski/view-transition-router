@@ -48,12 +48,23 @@ export const toTransitionToken = (transition: TransitionType, direction: Directi
 };
 
 /**
+ * Handle of the pending cleanup timer, kept at module scope so a rapid second
+ * navigation can cancel the first one's cleanup before it strips the overrides
+ * out from under the still-running animation.
+ */
+let pendingVarCleanup: ReturnType<typeof setTimeout> | undefined;
+
+/**
  * Sets `--vtr-duration` and/or `--vtr-easing` on `:root` inline style before a view
  * transition starts, then removes them after the animation completes so the CSS
  * defaults from `variables.css` are restored for the next navigation.
  *
  * Must be called synchronously before `document.startViewTransition` captures the
  * new frame — i.e. inside the `startTransition` callback, before `navigate()`.
+ *
+ * If navigations overlap (e.g. two clicks within one animation), the earlier
+ * cleanup timer is cancelled so it cannot remove the newer navigation's overrides
+ * mid-transition; a single fresh timer always governs the latest values.
  */
 export const applyTransitionVars = (duration?: number, easing?: string): void => {
   if (typeof document === 'undefined') return;
@@ -63,10 +74,14 @@ export const applyTransitionVars = (duration?: number, easing?: string): void =>
   if (duration !== undefined) root.style.setProperty('--vtr-duration', `${duration}ms`);
   if (easing !== undefined) root.style.setProperty('--vtr-easing', easing);
 
+  // Cancel any earlier cleanup so it can't strip these newer overrides early.
+  if (pendingVarCleanup !== undefined) clearTimeout(pendingVarCleanup);
+
   // CSS animations read timing values at start-time, so removing the inline
   // overrides after the animation has started does not affect the running animation.
-  setTimeout(() => {
-    if (duration !== undefined) root.style.removeProperty('--vtr-duration');
-    if (easing !== undefined) root.style.removeProperty('--vtr-easing');
+  pendingVarCleanup = setTimeout(() => {
+    root.style.removeProperty('--vtr-duration');
+    root.style.removeProperty('--vtr-easing');
+    pendingVarCleanup = undefined;
   }, (duration ?? DEFAULT_TRANSITION_DURATION_MS) + VAR_CLEANUP_BUFFER_MS);
 };

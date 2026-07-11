@@ -5,6 +5,7 @@ import {
   useRef,
   useCallback,
   useEffect,
+  useMemo,
   useTransition,
   type ReactNode,
 } from 'react';
@@ -23,6 +24,15 @@ export const TransitionProvider = ({ children, config = {} }: TransitionProvider
   const [isPending, startTransition] = useTransition();
   const [direction, setDirection] = useState<Direction>('replace');
   const [transitionType, setTransitionType] = useState<TransitionType | null>(null);
+
+  // Rebuild a stable config object keyed on its individual fields, so passing an
+  // inline `config={{...}}` object literal (the natural usage) doesn't hand every
+  // consumer a new `ctx.config` reference on each render.
+  const { defaultTransition, defaultDuration, defaultEasing, navigate, renderLink } = config;
+  const stableConfig = useMemo<TransitionConfig>(
+    () => ({ defaultTransition, defaultDuration, defaultEasing, navigate, renderLink }),
+    [defaultTransition, defaultDuration, defaultEasing, navigate, renderLink],
+  );
 
   // Tracks the idx of the history entry we were on BEFORE the most recent navigation.
   // Updated in two places only:
@@ -55,7 +65,7 @@ export const TransitionProvider = ({ children, config = {} }: TransitionProvider
           ? deltaToDirection(next - prev)
           : 'replace';
 
-      const activeTransition = config.defaultTransition ?? DEFAULT_TRANSITION;
+      const activeTransition = defaultTransition ?? DEFAULT_TRANSITION;
 
       // Wrap in startTransition so addTransitionType is called during an active
       // React transition batch — this is what triggers <ViewTransition> to fire
@@ -77,21 +87,20 @@ export const TransitionProvider = ({ children, config = {} }: TransitionProvider
 
     window.addEventListener('popstate', handlePopState, { capture: true });
     return () => window.removeEventListener('popstate', handlePopState, { capture: true });
-  }, [config.defaultTransition, startTransition]);
+  }, [defaultTransition, startTransition]);
 
-  return (
-    <TransitionContext.Provider
-      value={{
-        direction,
-        transitionType,
-        isPending,
-        config,
-        _setTransition,
-        _startTransition: startTransition,
-        _advanceHistoryRef,
-      }}
-    >
-      {children}
-    </TransitionContext.Provider>
+  const value = useMemo(
+    () => ({
+      direction,
+      transitionType,
+      isPending,
+      config: stableConfig,
+      _setTransition,
+      _startTransition: startTransition,
+      _advanceHistoryRef,
+    }),
+    [direction, transitionType, isPending, stableConfig, _setTransition, startTransition, _advanceHistoryRef],
   );
+
+  return <TransitionContext.Provider value={value}>{children}</TransitionContext.Provider>;
 };
