@@ -46,8 +46,9 @@ export const TransitionLink = ({
       }
     }
     // Advance the history idx ref after pushState/replaceState so the next
-    // popstate delta is computed from the correct baseline.
-    ctx._advanceHistoryRef();
+    // popstate delta is computed from the correct baseline, and record the
+    // transition for this edge so a later back/forward across it replays it.
+    ctx._advanceHistoryRef({ type: activeTransition, duration, easing });
   };
 
   const handleClick = (e: MouseEvent<HTMLElement>) => {

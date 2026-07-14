@@ -9,9 +9,9 @@ import {
   useTransition,
   type ReactNode,
 } from 'react';
-import { TransitionContext } from '../context';
+import { TransitionContext, type TransitionRecord } from '../context';
 import { getHistoryIdx, deltaToDirection } from '../hooks/useNavigationDirection';
-import { addTransitionType, supportsViewTransitions, toTransitionToken } from '../utils/transition';
+import { addTransitionType, applyTransitionVars, supportsViewTransitions, toTransitionToken } from '../utils/transition';
 import { DEFAULT_TRANSITION } from '../constants';
 import type { Direction, TransitionType, TransitionConfig } from '../types';
 
@@ -44,8 +44,18 @@ export const TransitionProvider = ({ children, config = {} }: TransitionProvider
   // fires, which would reset this ref to the new idx and make delta = 0.
   const prevHistoryIdxRef = useRef<number | undefined>(getHistoryIdx());
 
-  const _advanceHistoryRef = useCallback(() => {
-    prevHistoryIdxRef.current = getHistoryIdx();
+  // Remembers which transition was applied to each history edge, keyed by the
+  // idx of the entry that was pushed. When the user later navigates back/forward
+  // across that edge (popstate), we replay the recorded transition instead of
+  // always animating with the provider default.
+  const transitionByIdxRef = useRef<Map<number, TransitionRecord>>(new Map());
+
+  const _advanceHistoryRef = useCallback((record?: TransitionRecord) => {
+    const idx = getHistoryIdx();
+    prevHistoryIdxRef.current = idx;
+    if (record !== undefined && idx !== undefined) {
+      transitionByIdxRef.current.set(idx, record);
+    }
   }, []);
 
   const _setTransition = useCallback((dir: Direction, type: TransitionType | null) => {
@@ -65,7 +75,14 @@ export const TransitionProvider = ({ children, config = {} }: TransitionProvider
           ? deltaToDirection(next - prev)
           : 'replace';
 
-      const activeTransition = defaultTransition ?? DEFAULT_TRANSITION;
+      // A history edge is stored under the higher of the two idxs it connects
+      // (the entry that was pushed when navigating forward). Whether the user is
+      // going back or forward across it, that's where the transition lives.
+      const edgeIdx =
+        prev !== undefined && next !== undefined ? Math.max(prev, next) : undefined;
+      const recalled = edgeIdx !== undefined ? transitionByIdxRef.current.get(edgeIdx) : undefined;
+
+      const activeTransition = recalled?.type ?? defaultTransition ?? DEFAULT_TRANSITION;
 
       // Wrap in startTransition so addTransitionType is called during an active
       // React transition batch — this is what triggers <ViewTransition> to fire
@@ -75,6 +92,9 @@ export const TransitionProvider = ({ children, config = {} }: TransitionProvider
       if (supportsViewTransitions() && activeTransition !== 'none') {
         const token = toTransitionToken(activeTransition, dir);
         startTransition(() => {
+          // Replay the duration/easing this edge was navigated with, so a custom
+          // per-navigation timing survives the round trip through back/forward.
+          applyTransitionVars(recalled?.duration, recalled?.easing);
           addTransitionType?.(token);
           setDirection(dir);
           setTransitionType(activeTransition);

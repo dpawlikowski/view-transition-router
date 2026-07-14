@@ -63,8 +63,9 @@ export const useTransitionNavigate = () => {
         } finally {
           // Advance the history idx ref after pushState/replaceState — even if the
           // host router's navigate() threw — so the next popstate delta is computed
-          // from the correct baseline rather than a stale one.
-          ctx._advanceHistoryRef();
+          // from the correct baseline rather than a stale one. Record the transition
+          // used for this edge so a later back/forward across it replays the same one.
+          ctx._advanceHistoryRef({ type: activeTransition, duration, easing });
         }
       };
 
